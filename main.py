@@ -6,7 +6,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 df = pd.read_csv("movies_df.csv")
-
+df2 = pd.read_csv("recomendacion_df.csv")
+cv = CountVectorizer(max_features=5000, stop_words="english")
+vectors = cv.fit_transform(df2["tags"]).toarray()
+simil = cosine_similarity(vectors)
 
 app = FastAPI(
     title = "Consultas y recomendaciones de películas", 
@@ -168,19 +171,13 @@ async def get_director(nombre:str, df=Depends(lambda: df)):
 
 #____________________________________________________ Sistema de recomendación ________________________________________________________
 @app.get('/recomendacion/{title}')
-async def recomendar(title: str):
+async def recomendar(title: str, df=Depends(lambda: df2), simil=Depends(lambda: simil)):
 	"""
     Se ingresa el título de una película que se encuentre dentro de un dataset y devuelve 5 otros títulos similares.\n 
     :param title: Título de pélicula\n 
     :param df: Dataframe recomendacion_df de donde se obtienen los datos\n 
     :return: Mensaje con 5 títulos de películas similares\n 
     """
-	df2 = pd.read_csv("recomendacion_df.csv")
-
-	cv = CountVectorizer(max_features=5000, stop_words="english")
-	vectors = cv.fit_transform(df2["tags"]).toarray()
-	simil = cosine_similarity(vectors)
-	
 	df2['title1'] = df2['title'].str.lower()
 	title1 = title.lower()
 	if title1 in df2['title1'].values:
@@ -195,6 +192,5 @@ async def recomendar(title: str):
 		return pel_string
 	else:
 		return(f'La película "{title}" no se encuentra en la base de datos, pruebe nuevamente con otro título')
-
 
 
