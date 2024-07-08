@@ -2,14 +2,11 @@ from fastapi import FastAPI, Depends
 from datetime import datetime
 import pandas as pd
 import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+
 
 df = pd.read_csv("movies_df.csv")
 df2 = pd.read_csv("recomendacion_df.csv")
-cv = CountVectorizer(max_features=5000, stop_words="english")
-vectors = cv.fit_transform(df2["tags"]).toarray()
-simil = cosine_similarity(vectors)
+simil = np.load("simil.npy")
 
 app = FastAPI(
     title = "Consultas y recomendaciones de películas", 
