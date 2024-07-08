@@ -168,23 +168,23 @@ async def get_director(nombre:str, df=Depends(lambda: df)):
 
 #____________________________________________________ Sistema de recomendación ________________________________________________________
 @app.get('/recomendacion/{title}')
-async def recomendar(title):
+async def recomendar(title: str):
 	"""
     Se ingresa el título de una película que se encuentre dentro de un dataset y devuelve 5 otros títulos similares.\n 
     :param title: Título de pélicula\n 
     :param df: Dataframe recomendacion_df de donde se obtienen los datos\n 
     :return: Mensaje con 5 títulos de películas similares\n 
     """
-	df = pd.read_csv("recomendacion_df.csv")
+	df2 = pd.read_csv("recomendacion_df.csv")
 
 	cv = CountVectorizer(max_features=5000, stop_words="english")
-	vectors = cv.fit_transform(df["tags"]).toarray()
+	vectors = cv.fit_transform(df2["tags"]).toarray()
 	simil = cosine_similarity(vectors)
 	
-	df['title1'] = df['title'].str.lower()
+	df2['title1'] = df2['title'].str.lower()
 	title1 = title.lower()
-	if title1 in df['title1'].values:
-		movie_index = df[df["title1"] == title1].index[0] 
+	if title1 in df2['title1'].values:
+		movie_index = df2[df2["title1"] == title1].index[0] 
 		distances = simil[movie_index]
 		movie_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
 		pel = []
